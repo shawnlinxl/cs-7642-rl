@@ -103,7 +103,7 @@ Solving the system of equations:
 - start with arbitrary utilities
 - update utilities based on neighbors
 - repeat until convergence
-  i.e. \\$\$\hat{U}\_{t+ 1}(S) = R(S) + \gamma \max_a \sum\_{S^\prime} T(S,a,S^\prime) \hat{U}\_t(S^\prime)\\\text{ where } \hat{U}\_t(S) \text{ is the estimate of the utility of \$S\$ at time \$t\$.}\$\$
+  i.e. \\\$\\$\hat{U}\\_{t+ 1}(S) = R(S) + \gamma \max_a \sum\\_{S^\prime} T(S,a,S^\prime) \hat{U}\\_t(S^\prime)\\\text{ where } \hat{U}\\_t(S) \text{ is the estimate of the utility of \\$S\\$ at time \\$t\\$.}\\$\$
 - Intuition: $R(S)$ is a truth, and in every iteration truth is added to estimates. As more truth is added, you move closer to the true utility of states.
   ![Finding Policies](img/1.22_Finding_Policies_Value_Iter_Quiz.png)
 
@@ -122,3 +122,84 @@ And this is "Value" version of the Bellman equation is equivalent to the "Qualit
 $$ Q(S,a) = R(S,a) + \gamma\sum_{S^\prime} T(S,a,S^\prime)\max_{a^\prime}Q(S^\prime, a^\prime)$$
 or the "Continuation" version of the equation
 $$C(S,a) = \gamma \sum_{S^\prime} T(S,a,S^\prime)\max_{a^\prime}(R(S^\prime, a^\prime) + C(S^\prime, a^\prime)).$$
+
+## Reinforcement Learning Basics
+
+Agents interacting environments and getting rewards, and finding out what the world is about.
+
+### Behavior Structures
+
+- plan: fixed sequence of actions
+  - during learning
+  - stochasticity
+- conditional plan: includes "if" statements
+- stationary policy/universal plan: mapping from state to action
+  - if at every state: same
+  - very large
+  - always optimal stationary policy for every MDP
+
+### Evaluating a policy
+
+![Evaluating a Policy](img/2.6_Evaluating_a_Policy.png)
+
+### Evaluating a learner
+
+- value of returned policy
+- computational complexity (time)
+- sample complexity (time): how much data it needs
+
+## Temporal Difference Learning
+
+### RL Context
+
+$<s, a, r>^* \rightarrow$ RL algorithm $\rightarrow \pi$
+
+#### Model-based
+
+$<s, a, r>^* \rightarrow \xleftrightarrow[\text{model learner} \rightarrow \text{Transitions/Rewards}]{} \rightarrow$ MDP Solver $\rightarrow Q^* \rightarrow \argmax \rightarrow \pi$
+
+Model learner can take current estimate of transitions/rewards and update estimates.
+
+#### Value-function-based (model free)
+
+$<s, a, r>^* \rightarrow \xleftrightarrow[\text{value update} \rightarrow Q^*]{} \rightarrow \argmax \rightarrow \pi$
+
+Learn $Q*$ directly from $<s, a, r>^*$
+
+#### Policy Search
+
+$<s, a, r>^* \rightarrow \xleftrightarrow[\text{policy update} \rightarrow \pi]{}$
+
+![RL Context](img/3.3_RL_Context.png)
+
+### $TD(\lambda)$
+
+Learning to predict over time
+
+### Computing Estimates Incrementally
+
+$$
+\begin{aligned}
+V_T(S_1) &= \frac{(T-1)V_{T-1}(S_1) + R_T(S_1)}{T} \\
+         &= \frac{T-1}{T}V_{T-1}(S_1) + \frac{1}{T}R_T(S_1) \\
+         &= V_{T-1}(S_1) + \alpha_T\underbrace{(R_T(S_1) - V_{T-1}(S_1))}_\text{error}
+\end{aligned}
+$$
+
+### Properties of Learning Rates
+
+$$V_T(S_1) = \alpha_T(R_T(S_1) - V_{T-1}(S_1))$$
+$$\lim_{T\rightarrow\infty}V_T(S) = V(S) \text{ if } \sum_T \alpha_T = \infty \text { and } \sum_T \alpha_T^2 < \infty$$
+
+### $TD(1)$ Rule
+
+$$s_1 \xrightarrow{r_1} s_2 \xrightarrow{r_2} s_3 \xrightarrow{r_3} s_F $$
+
+- Episode T
+  - For all states $s$, initialize eligibility $e(s) = 0$ at start of episode, $V_T(s) = V_{T-1}(s)$
+  - After $s_{t-1} \xrightarrow{r_t} s_t$: update $e(s_{t-1}) = e(s_{t-1}) + 1$
+  - For all $s$
+    - $V_T(s) = V_T(s) + \alpha_T(r_t + \gamma V_{T-1}(S_t) - V_{T-1}(S_{t-1}))e(s)$
+    - $e(s) = \gamma e(s)$
+  
+![TD1 Example](img/3.12_TD1.png)
