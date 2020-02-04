@@ -203,3 +203,44 @@ $$s_1 \xrightarrow{r_1} s_2 \xrightarrow{r_2} s_3 \xrightarrow{r_3} s_F $$
     - $e(s) = \gamma e(s)$
   
 ![TD1 Example](img/3.12_TD1.png)
+
+### $TD(0)$ Rule
+
+Finds Maximum Likelihood estimate
+$$
+\begin{aligned}
+V_T(S_{t-1}) &= V_T(s_{t-1}) + \alpha_T(r_t + \gamma V_T(s_t) - V_T(s_{t-1})) \\
+V_T(S_{t-1}) &= E\left[r_t + \gamma V_T(s_t)\right]\\
+V_T(S_{t-1}) &= E\left[r_t + \gamma r_{t+1} + \gamma ^2 r_{t+2} + ... \right]
+\end{aligned}
+$$
+
+### $TD(\lambda)$ Rule
+
+Both $TD(0)$ and $TD(1)$ have updates based on differences between temporally successive predictions. One algorithm covers both!
+
+$TD(1)$
+- Episode T
+  - For all states $s$, initialize eligibility $e(s) = 0$ at start of episode, $V_T(s) = V_{T-1}(s)$
+  - After $s_{t-1} \xrightarrow{r_t} s_t$: update $e(s_{t-1}) = e(s_{t-1}) + 1$
+  - For all $s$
+    - $V_T(s) = V_T(s) + \alpha_T(r_t + \gamma V_{T-1}(S_t) - V_{T-1}(S_{t-1}))e(s)$
+    - $e(s) = \gamma e(s)$
+
+$- Episode T
+  - For all states $s$, $V_T(s) = V_{T-1}(s)$
+  - After $s_{t-1} \xrightarrow{r_t} s_t$
+  - For all $s$
+    - $V_T(s) = V_T(s) + \alpha_T(r_t + \gamma V_{T-1}(S_t) - V_{T-1}(S_{t-1}))$
+
+$TD(\lambda)$
+- Episode T
+  - For all states $s$, initialize eligibility $e(s) = 0$ at start of episode, $V_T(s) = V_{T-1}(s)$
+  - After $s_{t-1} \xrightarrow{r_t} s_t$: update $e(s_{t-1}) = e(s_{t-1}) + 1$
+  - For all $s$
+    - $V_T(s) = V_T(s) + \alpha_T(r_t + \gamma V_{T-1}(S_t) - V_{T-1}(S_{t-1}))e(s)$
+    - $e(s) = \lambda \gamma e(s)$
+
+### K-Step Estimators
+
+![K Step Estimators](img/3.17_K_Step_Estimators.png)
