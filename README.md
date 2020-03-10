@@ -10,7 +10,7 @@ This repository centralizes learning resources that are useful for the CS 7642 c
 ## Logistics
 
 - [Course Schedule](https://docs.google.com/spreadsheets/d/12iYlkIUo5H00P18h6PX81a1FpIDoUOb2Y7Zv_uRRS1I/edit#gid=0) for Spring 2020
-- Slack [workspace](https://omscs-study.slack.com/archives/C50RUPK2S))
+- Slack [workspace](https://omscs-study.slack.com/archives/C50RUPK2S)
 - [Piazza](https://piazza.com/class/k4ws6a8i2uu71u)
 - Course [github](https://github.gatech.edu/)
 
