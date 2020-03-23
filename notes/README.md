@@ -103,7 +103,7 @@ Solving the system of equations:
 - start with arbitrary utilities
 - update utilities based on neighbors
 - repeat until convergence
-  i.e. \\\$\\$\hat{U}\\_{t+ 1}(S) = R(S) + \gamma \max_a \sum\\_{S^\prime} T(S,a,S^\prime) \hat{U}\\_t(S^\prime)\\\text{ where } \hat{U}\\_t(S) \text{ is the estimate of the utility of \\$S\\$ at time \\$t\\$.}\\$\$
+  i.e. \\\\\$\\\\$\hat{U}\\\\_{t+ 1}(S) = R(S) + \gamma \max_a \sum\\\\_{S^\prime} T(S,a,S^\prime) \hat{U}\\\\_t(S^\prime)\\\text{ where } \hat{U}\\\\_t(S) \text{ is the estimate of the utility of \\\\$S\\\\$ at time \\\\$t\\\\$.}\\\\$\$
 - Intuition: $R(S)$ is a truth, and in every iteration truth is added to estimates. As more truth is added, you move closer to the true utility of states.
   ![Finding Policies](img/1.22_Finding_Policies_Value_Iter_Quiz.png)
 
@@ -196,17 +196,19 @@ $$\lim_{T\rightarrow\infty}V_T(S) = V(S) \text{ if } \sum_T \alpha_T = \infty \t
 $$s_1 \xrightarrow{r_1} s_2 \xrightarrow{r_2} s_3 \xrightarrow{r_3} s_F $$
 
 - Episode T
+
   - For all states $s$, initialize eligibility $e(s) = 0$ at start of episode, $V_T(s) = V_{T-1}(s)$
   - After $s_{t-1} \xrightarrow{r_t} s_t$: update $e(s_{t-1}) = e(s_{t-1}) + 1$
   - For all $s$
     - $V_T(s) = V_T(s) + \alpha_T(r_t + \gamma V_{T-1}(S_t) - V_{T-1}(S_{t-1}))e(s)$
     - $e(s) = \gamma e(s)$
-  
+
 ![TD1 Example](img/3.12_TD1.png)
 
 ### $TD(0)$ Rule
 
 Finds Maximum Likelihood estimate
+
 $$
 \begin{aligned}
 V_T(S_{t-1}) &= V_T(s_{t-1}) + \alpha_T(r_t + \gamma V_T(s_t) - V_T(s_{t-1})) \\
@@ -220,6 +222,7 @@ $$
 Both $TD(0)$ and $TD(1)$ have updates based on differences between temporally successive predictions. One algorithm covers both!
 
 $TD(1)$
+
 - Episode T
   - For all states $s$, initialize eligibility $e(s) = 0$ at start of episode, $V_T(s) = V_{T-1}(s)$
   - After $s_{t-1} \xrightarrow{r_t} s_t$: update $e(s_{t-1}) = e(s_{t-1}) + 1$
@@ -227,13 +230,15 @@ $TD(1)$
     - $V_T(s) = V_T(s) + \alpha_T(r_t + \gamma V_{T-1}(S_t) - V_{T-1}(S_{t-1}))e(s)$
     - $e(s) = \gamma e(s)$
 
-$- Episode T
-  - For all states $s$, $V_T(s) = V_{T-1}(s)$
-  - After $s_{t-1} \xrightarrow{r_t} s_t$
-  - For all $s$
-    - $V_T(s) = V_T(s) + \alpha_T(r_t + \gamma V_{T-1}(S_t) - V_{T-1}(S_{t-1}))$
+\$- Episode T
+
+- For all states $s$, $V_T(s) = V_{T-1}(s)$
+- After $s_{t-1} \xrightarrow{r_t} s_t$
+- For all $s$
+  - $V_T(s) = V_T(s) + \alpha_T(r_t + \gamma V_{T-1}(S_t) - V_{T-1}(S_{t-1}))$
 
 $TD(\lambda)$
+
 - Episode T
   - For all states $s$, initialize eligibility $e(s) = 0$ at start of episode, $V_T(s) = V_{T-1}(s)$
   - After $s_{t-1} \xrightarrow{r_t} s_t$: update $e(s_{t-1}) = e(s_{t-1}) + 1$
@@ -244,3 +249,108 @@ $TD(\lambda)$
 ### K-Step Estimators
 
 ![K Step Estimators](img/3.17_K_Step_Estimators.png)
+
+## Convergence: TD with Control
+
+### Bellman Equations
+
+#### No Actions
+
+$$V(s) = R(s) + \gamma \sum_{s^{\prime}}T(s,s^{\prime})V(s^{\prime})$$
+
+update rule (actually TD(0))
+
+- if : $<s_{t-1}, r_t, s_t>$ (start state => get some reward => end state):
+  $$V_t(s_{t-1}) = V_{t-1}(s_{t-1}) + \alpha_t(r_t + \gamma V_{t-1}(s_t) - V_t(s_{t-1}))$$
+- otherwise:
+  $$V_t(s) = V_{t-1}(s)$$
+
+#### With Actions
+
+$$Q(s,a) = R(s,a) + \gamma \sum_{s^\prime}T(s,a,s^\prime) \max_{a^\prime}Q(s^\prime, a^\prime)$$
+
+update rule (actually TD(0))
+
+- if : $<s_{t-1}, a_{t-1}, r_t, s_t>$ (start state => action => get some reward => end state):
+  $$Q_t(s_{t-1}, a_{t-1}) = Q_{t-1}(s_{t-1}, a_{t-1}) + \alpha_t(r_t + \gamma \max_{a^\prime}Q_{t-1}(s_t, a^\prime) - Q_{t-1}(s_{t-1}, a_{t-1}))$$
+- otherwise:
+  $$Q_t(s, a) = Q_{t-1}(s, a)$$
+
+Approximations:
+
+1. if we knew the model, synchronously update
+   $$Q_t(s,a) = R(s,a) + \gamma \sum_{s^\prime}T(s,a,s^\prime) \max_{a^\prime}Q_{t-1}(s^\prime, a^\prime)$$
+2. If we knew $Q^*$, sampling asynchronously update ($Q^*$ stands for Q-value for each state-action pair that would be obtained by following the optimal policy after taking action a in state s.)
+   $$Q_t(s_{t-1}, a_{t-1}) = Q_{t-1}(s_{t-1}, a_{t-1}) + \alpha_t(r_t + \gamma \max_{a^\prime}Q^*(s_t, a^\prime) - Q_{t-1}(s_{t-1}, a_{t-1}))$$
+
+### Bellman operator
+
+Let $B$ be an operator, or mapping from value functions to value functions.
+
+$$[BQ](s,a) = R(s,a) + \gamma\sum_{s^\prime}T(s,a,s^\prime) \max_{a^\prime}Q(s^\prime, a^\prime)$$
+
+### Contraction Mappings
+
+$B$ is an operator. If, for all $F$, $G$ and some $0 \leq \gamma < 1$,
+$$||BF - BG||_\infty \leq gamma ||F - G||_\infty,$$
+then $B$ is a contraction mapping.
+
+Note: $||Q||_\infty = max_{s,a}|Q(s,a)|$
+
+#### Contraction properties
+
+If $B$ is a contraction mapping:
+
+1. $F^* = BF^*$ has a solution and it is unique: this can be proved by contradiction
+2. $F_t = BF_{t-1} \Rightarrow F_t \rightarrow F^*$ (value iteration converges)
+   $$||F_{t} - F^*||_\infty = ||BF_{t-1} - BF^*||_\infty \leq gamma ||F_{t-1} - F^*||_\infty,$$
+  
+### Bellman operator contracts
+
+$$[BQ](s,a) = R(s,a) + \gamma\sum_{s^\prime}T(s,a,s^\prime) \max_{a^\prime}Q(s^\prime, a^\prime)$$
+
+Given $Q_1$, $Q_2$,
+
+$$
+\begin{aligned}
+||BQ_{1} - BQ_2||_\infty &= \max_{a,s}|[BQ_1](s,a) - [BQ_2](s,a)| \\
+& = \max_{a,s}|\gamma\sum_{s^\prime}T(s,a,s^\prime)(\max_{a^\prime}Q_1(s^\prime, a^\prime) - \max_{a^\prime}Q_2(s^\prime, a^\prime))| \\
+& \leq \gamma \max_{s^\prime}|\max_{a^\prime}Q_1(s^\prime, a^\prime) - \max_{a^\prime}Q_2(s^\prime, a^\prime)| \quad\text{ ($T(s,a,s^\prime)$ sums to one.)} \\
+& \leq \gamma \max_{s^\prime, a^\prime}|Q_1(s^\prime, a^\prime) - Q_2(s^\prime, a^\prime)| \\
+& = \gamma ||Q_1 - Q_2||_\infty
+\end{aligned}
+$$
+
+#### Note: max is non-expansion
+
+For all $f,g$, $$|\max_a f(a) - \max_a g(a)| \leq \max_a|f(a) - g(a)|$$
+
+Proof: WLOG $\max_a f(a)\geq \max_a g(a)$,
+
+$$
+\begin{aligned}
+|\max_a f(a) - \max_a g(a)| &= \max_a f(a) - \max(a) g(a)\\
+&= f(a_1) - g(a_2) \quad \text{where $a_1 = \argmax f(a)$ and $a_2 = \argmax g(a)$}\\
+&\leq f(a_1) - g(a_1)\\
+&= |f(a_1) - g(a_1)| \\
+&\leq \max_a |f(a) - g(a)|
+\end{aligned}
+$$
+
+### Convergence
+
+Define $\alpha_t(s,a) = 0$ if $s_t \neq s, a_t \neq a$.
+
+**Theorem**: Let $B$ be a contraction mapping and $Q^* = BQ^*$ be its fixed point. Let $Q_0$ be a $Q$ function and define $Q_{t+1} = [B_tQ_t]Q_t$. Then, $Q_t \rightarrow Q^*$ if:
+
+1. For all $u1, u2, s, a$: $$|([B_tU_1]Q^*)(s,a) - ([B_tU_2]Q^*)(s,a)| \leq (1 - \alpha_t(s,a))|U_1(s,a) - U_2(s,a)|$$
+2. For all $Q,U,s,a$: $$|([B_tU]Q^*)(s,a) - ([B_tU]Q)(s,a)| \leq \gamma\alpha_t(s,a)|Q^*(s,a) - Q(s,a)|$$
+3. $\sum_t \alpha_t = \infty$ and $\sum_t \alpha_t^2 < \infty$ 
+
+#### Convergence Theorem Explained
+
+$$
+\begin{aligned}
+([B_tQ]W)(s,a) &= Q(s,a) + \alpha_t(s,a)(r_t + \gamma \max_{a^\prime}W(s_t, a^\prime) - Q(s,a))
+\end{aligned}
+$$
